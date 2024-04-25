@@ -1,0 +1,32 @@
+Datatime (UTC+7): 25/04/2024 18:44:01 PM
+Problem: Testcases/Mini Cosmos/1.txt
+Algorithm: A star
+Solution: U, U, L, U, U, R, L, D, D, R, R, U, R, R, U, U, L, L, D, D, U, L, L, D, D, R, R, L, D, D, R, R, U, U, L, U, R
+Number of steps: 37
+Nodes generated: 366
+Nodes repeated: 199
+Nodes explored: 168
+Memory: 4.046875 MB
+Duration: 0.003098726272583008 secs
+
+
+===================================================
+===================================================
+
+
+Datatime (UTC+7): 25/04/2024 18:43:22 PM
+Problem: Testcases/Mini Cosmos/1.txt
+Algorithm: Breadth First Search
+Solution: U, U, L, U, U, R, L, D, D, R, R, U, R, R, U, U, L, L, D, D, U, L, L, D, D, R, R, L, D, D, R, R, U, U, L, U, R
+Number of steps: 37
+Nodes generated: 377
+Nodes repeated: 208
+Nodes explored: 170
+Memory: 4.24609375 MB
+Duration: 0.0014500617980957031 secs
+
+
+===================================================
+===================================================
+
+
