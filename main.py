@@ -208,14 +208,9 @@ def display_button_self():
 	step7Text = buttonFont.render("Manually", True, GREEN)
 	surface.blit(step7Text, [700 + 45, 318])
 
-def display_button_BFS():
-	pygame.draw.rect(surface, BLACK, pygame.Rect(700 + 165, 305, 95, 48),  0, 6)
-	step7Text = buttonFont.render("BFS", True, PINK)
-	surface.blit(step7Text, [700 + 190, 318])
-
-def display_button_A():
+def display_button_DFS_BNB():
 	pygame.draw.rect(surface, BLACK, pygame.Rect(700 + 275, 305, 95, 48),  0, 6)
-	step7Text = buttonFont.render("A*", True, YELLOW_LIGHT)
+	step7Text = buttonFont.render("DFS_BNB", True, YELLOW_LIGHT)
 	surface.blit(step7Text, [700 + 313, 318])
 
 def display_record():
@@ -300,14 +295,11 @@ def display_step_2(col = RED, mode = 0):
 	display_title_step_2(color = col)
 	if mode == 0:
 		display_button_self()
-		display_button_BFS()
-		display_button_A()
+		display_button_DFS_BNB()
 	elif mode == 1:
 		display_button_self()
 	elif mode == 2:
-		display_button_BFS()
-	elif mode == 3:
-		display_button_A()
+		display_button_DFS_BNB()
 
 def display_step_3(col = RED, mode = 0):
 	display_title_step_3(color = col)
@@ -643,84 +635,14 @@ def get_history_moves(actions):
 #-----------------
 # Setting Alogorithms
 #-----------------
-def bfs(curr_player, curr_boxes):
-	global win, timeTook, startTime
-	node_repeated = 0
-	node_generated = 0
-	frontier = Queue()
-	explored = set()
-	frontier.put((curr_player, curr_boxes, 0, 0, []))
 
-	node_generated += 1
-	explored.add((curr_player, curr_boxes))
-	startTime = time.time()
-	while True:
-		if frontier.empty():
-			print("Solution not found\n")
-			return (0, 0, 0, 0, [])
-
-		(now_player, now_boxes, steps, push, actions) = frontier.get()
-		moves = set_available_moves(now_player,now_boxes)
-		for m in moves:
-			res, is_pushed, new_player, new_boxes = move(now_player, now_boxes, m)
-			if (new_player, new_boxes) not in explored and res == True:
-				explored.add((new_player, new_boxes))
-				if is_win(goals, new_boxes):							
-					timeTook = time.time() - startTime
-					win = 1
-					memo_info = psutil.Process(os.getpid()).memory_info().rss/(1024*1024) - itemMemory
-					add_history("Breadth First Search", get_history_moves(actions + [(m,is_pushed)]), steps + 1, node_generated, node_repeated, len(explored), memo_info, timeTook)
-					return (node_generated + 1, steps + 1, timeTook, memo_info, actions + [(m,is_pushed)])
-				frontier.put((new_player, new_boxes, steps+1, push + is_pushed, actions + [(m,is_pushed)]))
-			else:
-				node_repeated += 1
-			node_generated += 1
-
-def dfs_branch_and_bound(curr_player, curr_boxes, lower_bound):
-	global win, timeTook, startTime
-	node_repeated = 0
-	node_generated = 0
-	stack = [(curr_player, curr_boxes, 0, 0, [])]
-	best_solution = None
-	explored = set()
-
-	node_generated += 1
-	startTime = time.time()
-
-	while stack:
-		(now_player, now_boxes, steps, push, actions) = stack.pop()
-
-		if steps >= lower_bound:
-			continue  # Prune branch if the cost exceeds lower bound
-
-		
-
-		moves = set_available_moves(now_player, now_boxes)
-
-		for m in moves:
-			res, is_pushed, new_player, new_boxes = move(now_player, now_boxes, m)
-			if res:
-				if is_win(goals, new_boxes):							
-					timeTook = time.time() - startTime
-					win = 1
-					memo_info = psutil.Process(os.getpid()).memory_info().rss/(1024*1024) - itemMemory
-					add_history("Breadth First Search", get_history_moves(actions + [(m,is_pushed)]), steps + 1, node_generated, node_repeated, len(explored), memo_info, timeTook)
-					return (node_generated + 1, steps + 1, timeTook, memo_info, actions + [(m,is_pushed)])
-				stack.append((new_player, new_boxes, steps + 1, push + is_pushed, actions + [(m, is_pushed)]))
-			else:
-				node_repeated += 1
-			node_generated += 1
-
-		# Update best solution
-		if best_solution is None or (steps, push) < best_solution:
-			best_solution = (steps, push)
 
 	# No solution found
 	print("Solution not found\n")
 	return (0, 0, 0, 0, [])
 
 
-def A_star(curr_player, curr_boxes):
+def DFS_BNB(curr_player, curr_boxes):
 	global win, timeTook, startTime
 	node_repeated = 0
 	node_generated = 0
@@ -774,11 +696,7 @@ if __name__ == '__main__':
 			timeTook = time.time() - startTime
 
 		if step == 3 and mode == 2 and win == 0:
-			# (node_created, steps, times, memo, moves) = bfs(player, boxes)
-			(node_created, steps, time, memo, moves) = dfs_branch_and_bound(player, boxes, 1e9)
-
-		if step == 3 and mode == 3 and win == 0:
-			(node_created, steps, times, memo, moves) = A_star(player, boxes)
+			(node_created, steps, times, memo, moves) = DFS_BNB(player, boxes)
 
 		if len(moves) > 0 and visualized == 1:
 			(_, is_pushed, player, boxes) = move(player, boxes, moves[0][0])
@@ -856,12 +774,8 @@ if __name__ == '__main__':
 						mode = 1
 						step = 3
 						startTime = time.time()
-					if bfs_rect.collidepoint(x,y): 
-						mode = 2
-						step = 3
-						continue
 					if A_rect.collidepoint(x,y):
-						mode = 3
+						mode = 2
 						step = 3
 						continue
 
@@ -875,21 +789,7 @@ if __name__ == '__main__':
 						if redo_rect.collidepoint(x,y):
 							redo()
 					if mode == 2:
-						#Bfs
-						if restart_rect.collidepoint(x,y):
-							init_data()
-							step = 1
-						if win == 1:
-							if visualized == 0:
-								if visualize_rect.collidepoint(x,y):
-									visualized = 1
-							else:
-								if undo_rect.collidepoint(x,y):
-									undo()
-								if redo_rect.collidepoint(x,y):
-									redo()
-					if mode == 3:
-						# A_star
+						# DFS_BNB
 						if restart_rect.collidepoint(x,y):
 							init_data()
 							step = 1

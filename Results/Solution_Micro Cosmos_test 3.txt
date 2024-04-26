@@ -1,0 +1,16 @@
+Datatime (UTC+7): 26/04/2024 23:57:40 PM
+Problem: Testcases/Micro Cosmos/3.txt
+Algorithm: A star
+Solution: L, L, U, U, U, R, R, R, L, L, L, D, D, D, R, R, R, R, R, U, U, U, U, L, U, L, L, D, U, R, R, D, R, D, D, L, U, L, L, U, U, R, R, D, R, D, L, D, R, D, D, L, L, L, L, L, U, U, U, U, U, R, R, D, D, L, R, U, U, L, L, D, D, D, D, U, U, U, U, R, R, R, U, R, D, D, R, D, D, L, U, L, L, L, R, U, U, L, L, D, D, D, U, U, U, R, R, R, R, D, R, D, L, L, L, L, R, U, U, L, L, D, D
+Number of steps: 123
+Nodes generated: 16134
+Nodes repeated: 8922
+Nodes explored: 7213
+Memory: 9.33203125 MB
+Duration: 0.07724928855895996 secs
+
+
+===================================================
+===================================================
+
+
