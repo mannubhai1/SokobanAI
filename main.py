@@ -1,11 +1,3 @@
-# **********************************************************************
-#-----------------------------------------------------------------------
-#*********************  WELCOME TO SOKOBAN SOLVER  *********************
-#@@@@@  Authors: QUACH MINH TUAN - TO THANH PHONG - VO ANH NGUYEN  @@@@@
-#-----------------------------------------------------------------------
-# **********************************************************************
-
-
 #-----------------
 # Importing Modules
 #-----------------
@@ -541,7 +533,7 @@ def set_distance():
 	return distanceToGoal, dead_squares
 
 def minimum_cost(step, boxes):
-	# Minimum of matching all distances from all goals to all boxes (Assignment Problem) using Hungarian Algorithm
+	# Minimum of matching all distances from all goals to all boxes using Hungarian Algorithm
 	temp = []
 	for goal in goals:
 		for box in boxes:
@@ -600,20 +592,20 @@ def set_value(filename):
 #----------------------
 # Exporting The Results
 #----------------------
-def print_results(board, gen, rep, expl, memo, dur):
-	if mode == 2:
-		print("\n-- Algorithm: Breadth first search --")
-	elif mode == 3:
-		print("\n-- Algorithm: A star --")
-	print("Sequence: ", end="")
-	for ch in board.history_moves:
-		print(ch.direction.char, end=" ")
-	print("\nNumber of steps: " + str(board.step))
-	print("Nodes generated: " + str(gen))
-	print("Nodes repeated: " + str(rep))
-	print("Nodes explored: " + str(expl))
-	print("Memory: ", str(memo), " MB")  # in megabytes
-	print('Duration: ' + str(dur) + ' secs')
+# def print_results(board, gen, rep, expl, memo, dur):
+# 	if mode == 2:
+# 		print("\n-- Algorithm: Breadth first search --")
+# 	elif mode == 3:
+# 		print("\n-- Algorithm: A star --")
+# 	print("Sequence: ", end="")
+# 	for ch in board.history_moves:
+# 		print(ch.direction.char, end=" ")
+# 	print("\nNumber of steps: " + str(board.step))
+# 	print("Nodes generated: " + str(gen))
+# 	print("Nodes repeated: " + str(rep))
+# 	print("Nodes explored: " + str(expl))
+# 	print("Memory: ", str(memo), " MB")  # in megabytes
+# 	print('Duration: ' + str(dur) + ' secs')
 
 def line_prepender(filename, algo, sol, ste, gen, rep, expl, memo, dur):
 	if not os.path.exists('Results'):
@@ -683,7 +675,50 @@ def bfs(curr_player, curr_boxes):
 			else:
 				node_repeated += 1
 			node_generated += 1
-	
+
+def dfs_branch_and_bound(curr_player, curr_boxes, lower_bound):
+	global win, timeTook, startTime
+	node_repeated = 0
+	node_generated = 0
+	stack = [(curr_player, curr_boxes, 0, 0, [])]
+	best_solution = None
+	explored = set()
+
+	node_generated += 1
+	startTime = time.time()
+
+	while stack:
+		(now_player, now_boxes, steps, push, actions) = stack.pop()
+
+		if steps >= lower_bound:
+			continue  # Prune branch if the cost exceeds lower bound
+
+		
+
+		moves = set_available_moves(now_player, now_boxes)
+
+		for m in moves:
+			res, is_pushed, new_player, new_boxes = move(now_player, now_boxes, m)
+			if res:
+				if is_win(goals, new_boxes):							
+					timeTook = time.time() - startTime
+					win = 1
+					memo_info = psutil.Process(os.getpid()).memory_info().rss/(1024*1024) - itemMemory
+					add_history("Breadth First Search", get_history_moves(actions + [(m,is_pushed)]), steps + 1, node_generated, node_repeated, len(explored), memo_info, timeTook)
+					return (node_generated + 1, steps + 1, timeTook, memo_info, actions + [(m,is_pushed)])
+				stack.append((new_player, new_boxes, steps + 1, push + is_pushed, actions + [(m, is_pushed)]))
+			else:
+				node_repeated += 1
+			node_generated += 1
+
+		# Update best solution
+		if best_solution is None or (steps, push) < best_solution:
+			best_solution = (steps, push)
+
+	# No solution found
+	print("Solution not found\n")
+	return (0, 0, 0, 0, [])
+
 
 def A_star(curr_player, curr_boxes):
 	global win, timeTook, startTime
@@ -739,7 +774,8 @@ if __name__ == '__main__':
 			timeTook = time.time() - startTime
 
 		if step == 3 and mode == 2 and win == 0:
-			(node_created, steps, times, memo, moves) = bfs(player, boxes)
+			# (node_created, steps, times, memo, moves) = bfs(player, boxes)
+			(node_created, steps, time, memo, moves) = dfs_branch_and_bound(player, boxes, 1e9)
 
 		if step == 3 and mode == 3 and win == 0:
 			(node_created, steps, times, memo, moves) = A_star(player, boxes)
